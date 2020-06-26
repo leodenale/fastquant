@@ -523,7 +523,7 @@ class BuyAndHoldStrategy(BaseStrategy):
 
 class SentimentStrategy(BaseStrategy):
     """
-    SentimentStrategy
+    Sentiment strategy
     Implementation of sentiment strategy using nltk/textblob pre-built sentiment models
 
     Parameters
@@ -536,7 +536,6 @@ class SentimentStrategy(BaseStrategy):
         The sentiment score threshold to indicate when to buy/sell
 
     TODO: Textblob implementation in the custom_indicators for Sentiment indicator
-
     """
 
     params = (
@@ -576,6 +575,40 @@ class SentimentStrategy(BaseStrategy):
         return self.sentiment[0] <= self.senti
 
 
+class DisclosuresSentimentStrategy(BaseStrategy):
+    """
+    Disclosures sentiment strategy
+    Implementation of sentiment strategy on company disclosures
+    parsed using nltk/textblob pre-built sentiment models
+
+    Parameters
+    ----------
+    senti : float
+        The sentiment score threshold to indicate when to buy/sell
+    """
+
+    params = (
+        ("sentiments", None),
+        ("senti", 0.2),
+    )
+
+    def __init__(self, ):
+        # Initialize global variables
+        super().__init__()
+        # Strategy level variables
+        self.senti = self.params.senti
+
+        print("===Strategy level arguments===")
+        print("sentiment threshold :", self.senti)
+        self.sentiment = Sentiment(agg_sentiment=self.params.sentiments)
+
+    def buy_signal(self):
+        return self.sentiment[0] >= self.senti
+
+    def sell_signal(self):
+        return self.sentiment[0] <= self.senti
+
+
 STRATEGY_MAPPING = {
     "rsi": RSIStrategy,
     "smac": SMACStrategy,
@@ -585,6 +618,7 @@ STRATEGY_MAPPING = {
     "bbands": BBandsStrategy,
     "buynhold": BuyAndHoldStrategy,
     "sentiment": SentimentStrategy,
+    "disclosures": DisclosuresSentimentStrategy,
 }
 
 strat_docs = "\nExisting strategies:\n\n" + "\n".join(

@@ -25,6 +25,10 @@ from pandas.io.json import json_normalize
 import matplotlib.pyplot as pl
 import matplotlib as mpl
 
+import nltk
+import warnings
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+
 # Import from package
 from fastquant import get_stock_data, DATA_PATH
 
@@ -542,6 +546,34 @@ class DisclosuresPSE:
             if self.verbose:
                 print("Saved: {}".format(self.fp))
         return df
+
+    def get_sentiments(self):
+        """
+        """
+        try:
+            sia = SentimentIntensityAnalyzer()
+        except:
+            nltk.download('vader_lexicon')
+            nltk.download('punkt')
+            nltk.download('averaged_perceptron_tagger')
+
+        date_sentiments = {}
+        for idx,row in self.disclosures_combined.iterrows():
+            date = row['Announce Date and Time'].date()
+            paragraph = row['Background/Description of the Disclosure']
+
+            sentiments=[]
+            if paragraph is not None:
+                #split paragraph into sentences
+                sentences = nltk.sent_tokenize(paragraph)
+                for sentence in sentences:
+                    sentiment = sia.polarity_scores(sentence)['compound']
+                    sentiments.append(sentiment)
+                sentiment = np.mean(sentiments)
+                #sentiment = sia.polarity_scores(paragraph)['compound']
+                date_sentiments[date] = sentiment
+        return date_sentiments
+
 
     def filter_disclosures(self, indicator="close", operation="max"):
         """
