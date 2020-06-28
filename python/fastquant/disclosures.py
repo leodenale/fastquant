@@ -572,7 +572,15 @@ class DisclosuresPSE:
                 sentiment = np.mean(sentiments)
                 #sentiment = sia.polarity_scores(paragraph)['compound']
                 date_sentiments[date] = sentiment
-        return date_sentiments
+
+        if self.stock_data is None:
+            df = self.get_stock_data()
+        else:
+            df = self.stock_data
+
+        s = pd.Series(date_sentiments, name='sentiment_score')
+        data = df.merge(s, left_index=True, right_index=True, how="outer")
+        return data
 
 
     def filter_disclosures(self, indicator="close", operation="max"):
