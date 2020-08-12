@@ -46,3 +46,29 @@ def get_crypto_data(ticker, start_date, end_date, exchange="binance"):
             + " is not yet supported. Available exchanges: "
             ", ".join(CRYPTO_EXCHANGES)
         )
+
+
+def get_crypto_data2(ticker, start_date, end_date, exchange="binance"):
+    """
+    Get crypto data in OHLCV format
+
+    List of tickers here: https://coinmarketcap.com/exchanges/binance/
+    """
+    start_date_epoch = unix_time_millis(start_date)
+
+    if exchange in CRYPTO_EXCHANGES:
+        ex = getattr(ccxt, exchange)({"verbose": False})
+        ohlcv_lol = ex.fetch_ohlcv(ticker, "1d", since=start_date_epoch)
+        ohlcv_df = pd.DataFrame(
+            ohlcv_lol, columns=["dt", "close"]
+        )
+        ohlcv_df["dt"] = pd.to_datetime(ohlcv_df["dt"], unit="ms")
+        ohlcv_df = ohlcv_df[ohlcv_df.dt <= end_date]
+        return ohlcv_df.set_index("dt")
+    else:
+        raise NotImplementedError(
+            "The exchange "
+            + exchange
+            + " is not yet supported. Available exchanges: "
+            ", ".join(CRYPTO_EXCHANGES)
+        )
