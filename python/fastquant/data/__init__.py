@@ -1,6 +1,6 @@
 # Modules available for fastquant.data.*
 
-from fastquant.data.crypto.crypto import get_crypto_data, CRYPTO_EXCHANGES
+from fastquant.data.crypto.crypto import get_crypto_data2, CRYPTO_EXCHANGES
 
 from fastquant.data.stocks.pse import (
     # Gets from yahoo finance
